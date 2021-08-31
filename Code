@@ -1,0 +1,231 @@
+# importing numpy,sklearn, pandas , svm technique, knn technique, decision tree regression , matplotlib , metrics in order to define mean squared error and train and test split.
+import numpy as np import pandas as pd
+from sklearn.model_selection import train_test_split from sklearn.svm import SVR
+from sklearn.metrics import r2_score,mean_squared_error import seaborn as sns
+ 
+import matplotlib.pyplot as plt
+
+
+# loading data from excel file via data and data_test using pd.read_csv.
+
+
+airbnb = pd.read_csv("/Users/nirmalpatel/Desktop/AirBnb_NYC_2019.csv") airbnb.info()
+
+airbnb.head(10) # using data.head() we got first 10 rows of data.
+
+
+# counting null values from dataset airbnb.isnull().sum()
+
+airbnb.room_type.unique()
+
+
+# dataset preview airbnb.describe()
+
+# dataset info airbnb.info()
+
+# imputing column with zero airbnb['number_of_reviews']=airbnb['number_of_reviews'].fillna(0)
+
+airbnb.room_type.unique() airbnb.neighbourhood_group.unique() airbnb.neighbourhood.unique()
+
+
+# various room types in dataset d,ab = plt.subplots(figsize=(10,5))
+ab = sns.countplot(airbnb.room_type,palette="muted")
+ 
+plt.show()
+
+
+airbnb1 = airbnb[airbnb.neighbourhood_group == "Manhattan"][["neighbourhood","price"]] da = airbnb1.groupby("neighbourhood").mean()
+sns.distplot(da) plt.show()
+
+airbnb1 = airbnb[airbnb.neighbourhood_group == "Brooklyn"][["neighbourhood","price"]] db = airbnb1.groupby("neighbourhood").mean()
+sns.distplot(db) plt.show()
+
+f,ax = plt.subplots(figsize=(15,4))
+airbnb1 = airbnb[airbnb.neighbourhood_group=="Staten Island"]['price'] sns.distplot(airbnb1)
+plt.show()
+
+
+airbnb1 = airbnb[airbnb.room_type=="Private room"]['minimum_nights'] f,bx = plt.subplots(figsize=(10,4))
+bx = sns.swarmplot(y= airbnb1.index,x= airbnb1.values) plt.xlabel("minimum_nights")
+plt.show()
+
+
+airbnb1 = airbnb.host_id.value_counts()[:11] f,cx = plt.subplots(figsize=(16,5))
+cx = sns.barplot(x = airbnb1.index,y=airbnb1.values,palette="muted") plt.show()
+
+f,dx = plt.subplots(figsize=(15,5)) dx =
+sns.scatterplot(y=airbnb.latitude,x=airbnb.longitude,hue=airbnb.availability_365,palette="co olwarm")
+plt.show()
+ 
+# various machine learning libraries for regression analysis from sklearn.linear_model import LogisticRegression from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split from sklearn.metrics import classification_report from sklearn.metrics import confusion_matrix
+from sklearn.metrics import r2_score
+
+
+
+
+x = airbnb.iloc[:,[4,6,7,10,8,11,15]] y = airbnb['price']
+#Getting Test and Training Set x_train,x_test,y_train,y_test =
+train_test_split(x,y,stratify=x['neighbourhood_group'],test_size=.2,random_state=756) x_train.head()
+y_train.head()
+
+
+# x_train x_train
+
+# Standardize features by removing the mean and scaling to unit variance# declared two function for encoder because there are two columns
+
+#label encoder could be imported from sklearn from sklearn.preprocessing import LabelEncoder LE = LabelEncoder()
+LE1 =LabelEncoder()
+x_train['neighbourhood_group'] = LE.fit_transform(x_train['neighbourhood_group']) x_train['room_type'] = LE1.fit_transform(x_train['room_type']) x_test['neighbourhood_group'] = LE.transform(x_test['neighbourhood_group']) x_test['room_type'] = LE1.transform(x_test['room_type'])
+ 
+# scaling the data from sklean.preprocessing using importing MinMaxScaler by ranging them between 0 and 1.
+from sklearn.preprocessing import MinMaxScaler scaler = MinMaxScaler(feature_range=[-1,1]) scaler_y = MinMaxScaler(feature_range=[-1,1])
+
+# scaling of x_train and y_train
+x_train_scaled = scaler.fit_transform(x_train.values)
+y_train_scaled = scaler_y.fit_transform(y_train.values.reshape(-1,1))
+
+
+x_test_scaled = scaler.fit_transform(x_test.values)
+y_test_scaled = scaler_y.fit_transform(y_test.values.reshape(-1,1)) y_test_scaled
+x_train_scaled
+
+
+# Multiple linear regression model fitting
+from sklearn.linear_model import LinearRegression
+
+
+
+lr_model = LinearRegression() lr_model.fit(x_train_scaled,y_train_scaled.ravel()) y_prediction = lr_model.predict(x_test_scaled) y_prediction
+
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error score=r2_score(y_test_scaled,y_prediction) print("r2 score is",score)
+
+
+
+
+lr_model.intercept_
+ 
+
+from sklearn.metrics import mean_absolute_error print("MAE",mean_absolute_error(y_test_scaled,y_prediction))
+
+from sklearn.metrics import mean_squared_error print("MSE",mean_squared_error(y_test_scaled,y_prediction))
+
+print("RMSE",np.sqrt(mean_squared_error(y_test_scaled,y_prediction)))
+
+
+from sklearn.metrics import r2_score
+r2 = r2_score(y_test_scaled,y_prediction) print(r2)
+
+
+
+
+
+
+
+
+
+# Random Forest Regression
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+
+reg = RandomForestRegressor() reg.fit(x_train_scaled, y_train_scaled) y_test_scale = reg.predict(x_train_scaled) y_test_scale
+from sklearn import metrics print('R^2:',metrics.r2_score(y_train_scaled, y_test_scale))
+ 
+
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error score=r2_score(y_train_scaled,y_test_scale) print("r2 score is",score)
+
+
+
+
+print('MAE:',metrics.mean_absolute_error(y_train_scaled, y_test_scale)) print('MSE:',metrics.mean_squared_error(y_train_scaled, y_test_scale)) print('RMSE:',np.sqrt(metrics.mean_squared_error(y_train_scaled, y_test_scale)))
+
+airbnb = pd.DataFrame({'Real Values':y_train_scaled.reshape(-1), 'Predicted Values':y_test_scale.reshape(-1)})
+airbnb
+
+
+airbnb
+
+
+plt.scatter(y_train_scaled, y_test_scale) plt.xlabel("Prices") plt.ylabel("Predicted prices") plt.title("Prices vs Predicted prices") plt.show()
+
+import xgboost as xgb
+from xgboost import XGBRegressor regressor = XGBRegressor() regressor.fit(x_train, y_train)
+
+xgboost_prediciton = regressor.predict(x_train)
+
+
+print('R^2:',metrics.r2_score(y_train, xgboost_prediciton))
+ 
+print('Adjusted R^2:',1 - (1-metrics.r2_score(y_train, xgboost_prediciton))*(len(y_train)- 1)/(len(y_train)-x_train.shape[1]-1))
+print('MAE:',metrics.mean_absolute_error(y_train, xgboost_prediciton)) print('MSE:',metrics.mean_squared_error(y_train, xgboost_prediciton)) print('RMSE:',np.sqrt(metrics.mean_squared_error(y_train, xgboost_prediciton)))
+
+airbnb = pd.DataFrame({'Real Values':y_train, 'Predicted Values':xgboost_prediciton})
+
+
+airbnb
+
+
+plt.scatter(y_train, xgboost_prediciton) plt.xlabel("Prices") plt.ylabel("Predicted prices") plt.title("Prices vs Predicted prices") plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+from sklearn.tree import DecisionTreeRegressor regressor = DecisionTreeRegressor() regressor.fit(x_train_scaled, y_train_scaled)
+
+y_predict_dt = regressor.predict(x_train_scaled) y_predict_dt
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
+ 
+score=r2_score(y_train_scaled,y_predict_dt) print("r2 score is",score)
+
+print('Adjusted R^2:',1 - (1-metrics.r2_score(y_train_scaled, y_predict_dt))*(len(y_train_scaled)-1)/(len(y_train_scaled)-x_train.shape[1]-1)) print('MAE:',metrics.mean_absolute_error(y_train_scaled, y_predict_dt)) print('MSE:',metrics.mean_squared_error(y_train_scaled, y_predict_dt)) print('RMSE:',np.sqrt(metrics.mean_squared_error(y_train_scaled, y_predict_dt)))
+
+airbnb = pd.DataFrame({'Real Values':y_train, 'Predicted Values':y_predict_dt})
+
+
+airbnb
+
+
+plt.scatter(y_train_scaled, y_predict_dt) plt.xlabel("Prices") plt.ylabel("Predicted prices") plt.title("Prices vs Predicted prices") plt.show()
+
+
+
+
+
+# KNN regression from math import sqrt
+from sklearn import neighbors
+from sklearn.metrics import mean_squared_error
+
+
+##### rmse_val = [] #to store rmse values for different k for K in range(20):
+K = K+1
+model = neighbors.KNeighborsRegressor(n_neighbors = K)
+ 
+model.fit(x_train_scaled, y_train_scaled) #fit the model pred=model.predict(x_test_scaled) #make prediction on test set
+error = sqrt(mean_squared_error(y_test_scaled,pred)) #calculate rmse rmse_val.append(error) #store rmse values
+print('RMSE value for k= ' , K , 'is:', error)
+
+
+import mglearn
+import matplotlib.pyplot as plt mglearn.plots.plot_knn_regression(n_neighbors=20)
+
+airbnb = pd.DataFrame({'Real Values':y_train, 'Predicted Values':y_predict_dt})
+
+
+airbnb
+
+
+plt.scatter(y_train_scaled, y_predict_dt) plt.xlabel("Prices") plt.ylabel("Predicted prices") plt.title("Prices vs Predicted prices") plt.show()
+ 
